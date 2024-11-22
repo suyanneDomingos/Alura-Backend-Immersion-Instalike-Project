@@ -18,6 +18,7 @@ const routes = (app) => {
     app.get("/posts", listarPosts);
     app.post("/posts", postarNovoPost)
       app.post("/upload", upload.single("imagem"), uploadImagem); // Chama a função controladora para processamento da imagem
+app.put("/upload/:id", )
 }
 
 export default routes;
