@@ -1,6 +1,6 @@
 import express from 'express';
 import multer from "multer"; // Importa o Multer para lidar com uploads de arquivos
-import { listarPosts, postarNovoPost, uploadImagem } from '../controllers/postControllers.js';
+import { listarPosts, postarNovoPost, uploadImagem, atualizarNovoPost  } from '../controllers/postControllers.js';
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
