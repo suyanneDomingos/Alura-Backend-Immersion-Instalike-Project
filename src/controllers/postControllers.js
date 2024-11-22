@@ -49,3 +49,17 @@ try {
         res.status(500).json({ "Erro": "Falha na requisição" });
     }
 }
+export async function atualizarNovoPost(req, res) {
+    const id = req.params.id; // Garantindo que a variável novoPost esteja definida com os dados do corpo da requisição
+    const urlImagem = `http:localhost:3000/${id}.png`
+    const post = { imgUrl: urlImagem,
+                  descricao: req.body.descricao,
+                  alt: req.body.alt}
+    try {
+        const postCriado = await criarPost(novoPost);
+        res.status(200).json(postCriado); // Retorna o post criado
+    } catch (erro) {
+        console.error(erro.message);
+        res.status(500).json({ "Erro": "Falha na requisição" }); // Tratamento de erro
+    }
+}
