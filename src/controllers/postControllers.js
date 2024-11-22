@@ -56,7 +56,7 @@ export async function atualizarNovoPost(req, res) {
                   descricao: req.body.descricao,
                   alt: req.body.alt}
     try {
-        const postCriado = await criarPost(novoPost);
+        const postCriado = await atualizarPost(id, post);
         res.status(200).json(postCriado); // Retorna o post criado
     } catch (erro) {
         console.error(erro.message);
