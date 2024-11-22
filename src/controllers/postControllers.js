@@ -1,65 +1,60 @@
-import { getTodosPosts , criarPost } from "../models/postModel.js";
+import {getTodosPosts, criarPost, atualizarPost} from "../models/postModel.js";
 import fs from "fs";
+import gerarDescricaoComGemini from "../services/geminiServices.js"
 
-// Função para listar todos os posts
 export async function listarPosts(req, res) {
-    const posts = await getTodosPosts(); // Busca todos os posts no banco de dados
-    res.status(200).json(posts); // Envia todos os posts como resposta em formato JSON
+    // Chama a função para buscar os posts
+    const posts = await getTodosPosts();
+    // Envia uma resposta HTTP com status 200 (OK) e os posts no formato JSON
+    res.status(200).json(posts);
 }
 
-// Função para criar um novo post
 export async function postarNovoPost(req, res) {
-    const novoPost = req.body; // Garantindo que a variável novoPost esteja definida com os dados do corpo da requisição
+    const novoPost = req.body;
     try {
         const postCriado = await criarPost(novoPost);
-        res.status(200).json(postCriado); // Retorna o post criado
-    } catch (erro) {
+        res.status(200).json(postCriado);  
+    } catch(erro) {
         console.error(erro.message);
-        res.status(500).json({ "Erro": "Falha na requisição" }); // Tratamento de erro
+        res.status(500).json({"Erro":"Falha na requisição"})
     }
 }
 
 export async function uploadImagem(req, res) {
-    // Verificando se o arquivo foi enviado na requisição
-    if (!req.file) {
-        return res.status(400).json({ "Erro": "Nenhuma imagem enviada." });
-    }
-
-    // Definindo os dados do novo post
     const novoPost = {
         descricao: "",
-        imgUrl: req.file.originalname,  // Nome da imagem enviada
+        imgUrl: req.file.originalname,
         alt: ""
     };
 
-try {
-        // Criando o post com o nome da imagem
+    try {
         const postCriado = await criarPost(novoPost);
-
-        // Definindo o caminho da imagem atualizada
-        const imagemAtualizada = `uploads/${postCriado.insertedId}.png`;
-
-        // Movendo a imagem para o diretório desejado
-        fs.renameSync(req.file.path, imagemAtualizada);
-
-        // Retornando o post com a imagem
-        res.status(200).json(postCriado);
-    } catch (erro) {
+        const imagemAtualizada = `uploads/${postCriado.insertedId}.png`
+        fs.renameSync(req.file.path, imagemAtualizada)
+        res.status(200).json(postCriado);  
+    } catch(erro) {
         console.error(erro.message);
-        res.status(500).json({ "Erro": "Falha na requisição" });
+        res.status(500).json({"Erro":"Falha na requisição"})
     }
 }
+
 export async function atualizarNovoPost(req, res) {
-    const id = req.params.id; // Garantindo que a variável novoPost esteja definida com os dados do corpo da requisição
-    const urlImagem = `http:localhost:3000/${id}.png`
-    const post = { imgUrl: urlImagem,
-                  descricao: req.body.descricao,
-                  alt: req.body.alt}
+    const id = req.params.id;
+    const urlImagem = `http://localhost:3000/${id}.png`
     try {
+        const imgBuffer = fs.readFileSync(`uploads/${id}.png`)
+        const descricao = await gerarDescricaoComGemini(imgBuffer)
+
+        const post = {
+            imgUrl: urlImagem,
+            descricao: descricao,
+            alt: req.body.alt
+        }
+
         const postCriado = await atualizarPost(id, post);
-        res.status(200).json(postCriado); // Retorna o post criado
-    } catch (erro) {
+        res.status(200).json(postCriado);  
+    } catch(erro) {
         console.error(erro.message);
-        res.status(500).json({ "Erro": "Falha na requisição" }); // Tratamento de erro
+        res.status(500).json({"Erro":"Falha na requisição"});
     }
 }
