@@ -12,3 +12,9 @@ export async function criarPost(novoPost)
     const colecao = db.collection('posts');
     return colecao.insertOne(novoPost);
 }
+export async function atualizarPost(novoPost)
+{
+      const db = conexao.db('Instabytes');
+    const colecao = db.collection('posts');
+    return colecao.insertOne(novoPost);
+}
